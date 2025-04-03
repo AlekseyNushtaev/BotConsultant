@@ -52,19 +52,39 @@ async def process_start_user(message: Message):
         message.from_user.last_name,
         datetime.datetime.now()
     )
-    #await message.answer_video_note('DQACAgIAAxkBAANNZ5NHq3m_43okHTbTtkFT179fNP8AAsJcAAI5P1BIuBZ0ixX_H042BA')
+    # await message.answer_video_note('DQACAgIAAxkBAAMkZ7YTobVOP3LcI_-weFilb18kwXkAAiJtAALpnalJe1wSU2ZnRM82BA')
     await asyncio.sleep(0.3)
     await message.answer(
         text="""
-<b>Здравствуйте, это бот Андрея Кувшинова</b>👋🏻
+Здравствуйте! 👋🏻
 
-Здесь вы сможете подать заявку на бесплатную консультацию!
+Вы попали в официальный бот Андрея Кувшинова – бизнес-юриста.
 
-Чтобы оставить заявку, жмите на кнопку👇🏻
+🔹 Здесь вы можете оставить заявку на бесплатную юридическую консультацию по вопросам корпоративного права, банкротства и защиты бизнеса.
+
+📌 Как оставить заявку?
+Просто нажмите на кнопку ниже и заполните короткую форму – мы свяжемся с вами в ближайшее время.
+
+💼 Помогаем бизнесу решать сложные юридические вопросы просто и эффективно!
         """,
         parse_mode=ParseMode.HTML,
-        reply_markup=create_kb(1, quest_1="✅Оставить заявку на консультацию")
+        reply_markup=create_kb(1,
+                               quest_1="✅Оставить заявку на консультацию"
+                               )
     )
+    await asyncio.sleep(1)
+    await message.answer(text="""
+📘  Пока вы думаете, мы подготовили PDF-гайд для тех, кто хочет действовать уже сейчас: «Как сохранить логистический бизнес в кризис» — 10+ конкретных шагов от юристов с опытом более 12 лет, которые вытаскивали компании из сложных ситуаций:
+
+🔹 Как договариваться с лизингом и банками
+🔹 Как защитить активы от рисков
+🔹 Как оптимизировать закупки и расходы
+🔹 Как избежать субсидиарной ответственности
+
+👇 Нажмите и получите бесплатно:     
+    """,
+                         reply_markup=create_kb(1,
+                                                faq='Хочу гайд'))
 
 
 @router.callback_query(F.data == 'quest_1', StateFilter(default_state))
@@ -78,7 +98,7 @@ async def step_1(cb: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data == 'new', StateFilter(default_state))
 async def step_1_1(cb: CallbackQuery, state: FSMContext):
     await cb.message.answer(text="""
-Отлично, теперь напишите как к Вам обращаться?.     
+Отлично, теперь напишите как к Вам обращаться?     
     """)
     await state.set_state(FSMFillForm.get_full_name)
 
@@ -103,20 +123,41 @@ async def step_4_1(message: types.Message, state: FSMContext):
     contact = message.text
     dct = await state.get_data()
     add_question_to_db(message.from_user.id, dct['full_name'], dct['question'], contact, datetime.datetime.now())
-    await message.answer(text='Спасибо, ваша заявка оформлена, в ближайшее время с Вами свяжутся',
-                         reply_markup=create_kb(1, new='Создать новую заявку'))
     await state.set_state(default_state)
     await state.clear()
+    await message.answer(text='''
+Спасибо, ваша заявка оформлена, в ближайшее время с Вами свяжутся.
+    
+💼 Подписывайтесь в соц. сетях, чтобы разбираться в законах без сложных терминов:
+🔹 YouTube (https://www.youtube.com/@urstart)
+🔹 VK (https://vk.com/club229212039)
+🔹 VC (https://vc.ru/u/4590675-andrei-kuvshinov-biznes-yurist)
+🔹 Дзен (https://dzen.ru/id/5de8bbf3c7e50cf95e813aaa)
+    ''',
+                         reply_markup=create_kb(1,
+                                                new='Создать новую заявку',
+                                                faq='Хочу гайд')
+                         )
 
 
 @router.callback_query(F.data == 'telegram', StateFilter(FSMFillForm.get_contact))
 async def step_4_2(cb: types.CallbackQuery, state: FSMContext):
     dct = await state.get_data()
     add_question_to_db(cb.from_user.id, dct['full_name'], dct['question'], 'Написать в телеграме', datetime.datetime.now())
-    await cb.message.answer(text='Спасибо, ваша заявка оформлена, в ближайшее время с Вами свяжутся',
-                         reply_markup=create_kb(1, new='Создать новую заявку'))
     await state.set_state(default_state)
     await state.clear()
+    await cb.message.answer(text='''
+Спасибо, ваша заявка оформлена, в ближайшее время с Вами свяжутся.
+    
+💼 Подписывайтесь в соц. сетях, чтобы разбираться в законах без сложных терминов:
+🔹 YouTube (https://www.youtube.com/@urstart)
+🔹 VK (https://vk.com/club229212039)
+🔹 VC (https://vc.ru/u/4590675-andrei-kuvshinov-biznes-yurist)
+🔹 Дзен (https://dzen.ru/id/5de8bbf3c7e50cf95e813aaa)
+    ''',
+                            reply_markup=create_kb(1,
+                                                   new='Создать новую заявку',
+                                                   faq='Хочу гайд'))
 
 
 @router.my_chat_member(ChatMemberUpdatedFilter(member_status_changed=KICKED))
@@ -160,3 +201,9 @@ async def csv(message: types.Message):
 async def delete_all(message: Message):
     delete_all_questions()
 
+
+@router.callback_query(F.data == 'faq', StateFilter(default_state))
+async def faq(cb: CallbackQuery, state: FSMContext):
+    await cb.message.answer_document(FSInputFile('Руководство_по_выживанию_в_кризис_Как_сохранить_логистический_бизнес.pdf'),
+                                     reply_markup=create_kb(1,
+                                                            quest_1="✅Оставить заявку на консультацию"))
