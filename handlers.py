@@ -52,7 +52,7 @@ async def process_start_user(message: Message):
         message.from_user.last_name,
         datetime.datetime.now()
     )
-    # await message.answer_video_note('DQACAgIAAxkBAAMkZ7YTobVOP3LcI_-weFilb18kwXkAAiJtAALpnalJe1wSU2ZnRM82BA')
+    await message.answer_video_note('DQACAgIAAxkBAAMkZ7YTobVOP3LcI_-weFilb18kwXkAAiJtAALpnalJe1wSU2ZnRM82BA')
     await asyncio.sleep(0.3)
     await message.answer(
         text="""
@@ -204,6 +204,6 @@ async def delete_all(message: Message):
 
 @router.callback_query(F.data == 'faq', StateFilter(default_state))
 async def faq(cb: CallbackQuery, state: FSMContext):
-    await cb.message.answer_document(FSInputFile('Руководство_по_выживанию_в_кризис_Как_сохранить_логистический_бизнес.pdf'),
+    await cb.message.answer_document(FSInputFile('Руководство.pdf'),
                                      reply_markup=create_kb(1,
                                                             quest_1="✅Оставить заявку на консультацию"))
