@@ -69,7 +69,7 @@ async def process_start_user(message: Message):
         """,
         parse_mode=ParseMode.HTML,
         reply_markup=create_kb(1,
-                               quest_1="✅Оставить заявку на консультацию"
+                               quest_1="Записаться на консультацию ✅"
                                )
     )
     await asyncio.sleep(1)
@@ -135,7 +135,7 @@ async def step_4_1(message: types.Message, state: FSMContext):
 🔹 Дзен (https://dzen.ru/id/5de8bbf3c7e50cf95e813aaa)
     ''',
                          reply_markup=create_kb(1,
-                                                new='Создать новую заявку',
+                                                new='Записаться на консультацию ✅',
                                                 faq='Хочу гайд')
                          )
 
@@ -156,7 +156,7 @@ async def step_4_2(cb: types.CallbackQuery, state: FSMContext):
 🔹 Дзен (https://dzen.ru/id/5de8bbf3c7e50cf95e813aaa)
     ''',
                             reply_markup=create_kb(1,
-                                                   new='Создать новую заявку',
+                                                   new='Записаться на консультацию ✅',
                                                    faq='Хочу гайд'))
 
 
@@ -206,14 +206,14 @@ async def delete_all(message: Message):
 async def faq(cb: CallbackQuery):
     await cb.message.answer_document(FSInputFile('Гайд Как сохранить логистический бизнес.pdf'),
                                      reply_markup=create_kb(1,
-                                                            quest_1="✅Оставить заявку на консультацию"))
+                                                            quest_1="Записаться на консультацию ✅"))
 
 @router.callback_query(F.data == 'faq_2', StateFilter(default_state))
 async def faq(cb: CallbackQuery):
     await cb.message.answer_document(
         FSInputFile('Гайд по Налоговым проверкам 2025.pdf'),
         reply_markup=create_kb(1,
-                               quest_1="✅Оставить заявку на консультацию"))
+                               quest_1="Записаться на консультацию ✅"))
 
 
 @router.callback_query(F.data == 'faq', StateFilter(default_state))
