@@ -2,6 +2,7 @@ import asyncio
 import csv
 import datetime
 import openpyxl
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from bot import bot
 from spread import get_sheet
@@ -11,7 +12,7 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, StateFilter, ChatMemberUpdatedFilter, KICKED, MEMBER
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State, default_state
-from aiogram.types import Message, CallbackQuery, ChatMemberUpdated, FSInputFile
+from aiogram.types import Message, CallbackQuery, ChatMemberUpdated, FSInputFile, InlineKeyboardButton
 
 from config import ADMIN_IDS
 from db.util import add_user_to_db, update_user_blocked, update_user_unblocked, add_question_to_db, get_all_questions, \
@@ -21,6 +22,12 @@ from keyboard import create_kb
 
 router = Router()
 
+builder = InlineKeyboardBuilder()
+
+builder.row(InlineKeyboardButton(text="Записаться на консультацию ✅", callback_data="quest_1"))
+builder.row(InlineKeyboardButton(text="Подписаться на телеграм канал", url="https://t.me/andreikuvshinov"))
+
+main_keyboard_markup = builder.as_markup()
 
 class FSMFillForm(StatesGroup):
     get_full_name = State()
@@ -68,9 +75,7 @@ async def process_start_user(message: Message):
 💼 Помогаем бизнесу решать сложные юридические вопросы просто и эффективно!
         """,
         parse_mode=ParseMode.HTML,
-        reply_markup=create_kb(1,
-                               quest_1="Записаться на консультацию ✅"
-                               )
+        reply_markup=main_keyboard_markup
     )
     await asyncio.sleep(1)
     await message.answer(text="""
