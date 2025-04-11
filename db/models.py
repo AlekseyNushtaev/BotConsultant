@@ -4,7 +4,7 @@ import atexit
 import datetime
 
 
-con_string = 'sqlite:///db/database.db'
+con_string = 'sqlite:///db/questions.db'
 
 engine = create_engine(con_string)
 Session = sessionmaker(bind=engine, expire_on_commit=False)

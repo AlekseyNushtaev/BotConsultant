@@ -16,7 +16,7 @@ from aiogram.types import Message, CallbackQuery, ChatMemberUpdated, FSInputFile
 
 from config import ADMIN_IDS
 from db.util import add_user_to_db, update_user_blocked, update_user_unblocked, add_question_to_db, get_all_questions, \
-    delete_all_questions
+    delete_all_questions, get_all_users
 from keyboard import create_kb
 
 
@@ -191,6 +191,18 @@ async def excel(message: types.Message):
                 sh.cell(i, y).value = quests[i-1][y-1]
     wb.save('questions.xlsx')
     await message.answer_document(FSInputFile('questions.xlsx'))
+
+
+@router.message(F.text == 'Users', F.from_user.id.in_(ADMIN_IDS), StateFilter(default_state))
+async def excel_users(message: types.Message):
+    users = get_all_users()
+    wb = openpyxl.Workbook()
+    sh = wb['Sheet']
+    for i in range(1, len(users) + 1):
+        for y in range(1, 7):
+            sh.cell(i, y).value = users[i-1][y-1]
+    wb.save('users.xlsx')
+    await message.answer_document(FSInputFile('users.xlsx'))
 
 
 @router.message(F.text == 'Csv', F.from_user.id.in_(ADMIN_IDS), StateFilter(default_state))

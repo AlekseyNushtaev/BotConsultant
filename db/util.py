@@ -66,6 +66,22 @@ def get_all_questions():
             print(e)
 
 
+def get_all_users():
+    with Session() as session:
+        try:
+            query = select(User)
+            users = session.execute(query)
+            result = [['id', 'username', 'first_name', 'last_name', 'Время входа в бота', 'Блокировка бота']]
+            for user in users.scalars():
+                start = ''
+                if user.time_start:
+                    start = user.time_start.strftime('%Y-%m-%d   %H:%M:%S')
+                result.append([user.user_id, user.username, user.first_name, user.last_name, start, user.is_block])
+            return result
+        except Exception as e:
+            print(e)
+
+
 def delete_all_questions():
     with Session() as session:
         try:
