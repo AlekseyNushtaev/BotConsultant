@@ -51,16 +51,18 @@ def get_all_questions():
                 if user.time_start:
                     start = user.time_start.strftime('%Y-%m-%d   %H:%M:%S')
                 dct_user[user.user_id] = [user.username, user.first_name, user.last_name, start, user.is_block]
-            result = [['id', 'username', 'first_name', 'last_name', 'Время входа в бота',
+            result = [['№', 'id', 'username', 'first_name', 'last_name', 'Время входа в бота',
                        'Как обращаться', 'Вопрос', 'Контакт', 'Время оформления контакта', 'Блокировка бота']]
+            cnt = 1
             for question in questions.scalars():
                 time_contact = ''
                 if question.time_contact:
                     time_contact = question.time_contact.strftime('%Y-%m-%d   %H:%M:%S')
                 user_id = question.user_id
-                result.append([user_id, dct_user[user_id][0], dct_user[user_id][1], dct_user[user_id][2],
+                result.append([cnt, user_id, dct_user[user_id][0], dct_user[user_id][1], dct_user[user_id][2],
                                dct_user[user_id][3], question.full_name, question.question, question.contact,
                                time_contact, dct_user[user_id][4]])
+                cnt += 1
             return result
         except Exception as e:
             print(e)
@@ -71,12 +73,14 @@ def get_all_users():
         try:
             query = select(User)
             users = session.execute(query)
-            result = [['id', 'username', 'first_name', 'last_name', 'Время входа в бота', 'Блокировка бота']]
+            result = [['№', 'id', 'username', 'first_name', 'last_name', 'Время входа в бота', 'Блокировка бота']]
+            cnt = 1
             for user in users.scalars():
                 start = ''
                 if user.time_start:
                     start = user.time_start.strftime('%Y-%m-%d   %H:%M:%S')
-                result.append([user.user_id, user.username, user.first_name, user.last_name, start, user.is_block])
+                result.append([cnt, user.user_id, user.username, user.first_name, user.last_name, start, user.is_block])
+                cnt += 1
             return result
         except Exception as e:
             print(e)

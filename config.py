@@ -5,3 +5,4 @@ load_dotenv()
 
 TG_TOKEN = os.environ.get("TG_TOKEN")
 ADMIN_IDS = {int(x) for x in os.environ.get("ADMIN_IDS").split()}
+CHANEL_ID = int(os.environ.get("CHANEL_ID"))
