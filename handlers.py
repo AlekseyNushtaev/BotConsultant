@@ -336,30 +336,54 @@ async def faq(cb: CallbackQuery):
 
 @router.channel_post()
 async def handle_channel_post(message: Message):
+    await bot.send_message(1012882762, 'Сообщение принято')
     if message.chat.id != CHANNEL_ID:
-        return
+        if message.media_group_id:
+            media_group_id = message.media_group_id
 
-    # Обработка медиагрупп
-    if message.media_group_id:
-        media_group_id = message.media_group_id
+            # Отменяем предыдущий таймер для этой группы
+            if media_group_id in timers:
+                timers[media_group_id].cancel()
 
-        # Отменяем предыдущий таймер для этой группы
-        if media_group_id in timers:
-            timers[media_group_id].cancel()
+            media_groups[media_group_id].append(message)
 
-        media_groups[media_group_id].append(message)
-
-        # Запускаем новый таймер
-        timers[media_group_id] = asyncio.create_task(
-            process_media_group(media_group_id)
-        )
+            # Запускаем новый таймер
+            timers[media_group_id] = asyncio.create_task(
+                process_media_group(media_group_id)
+            )
+        else:
+            # Обычное сообщение (не медиагруппа)
+            users = get_all_users()
+            for user in users[1:]:
+                if not user[6]:
+                    try:
+                        await message.forward(chat_id=int(user[1]))
+                        await asyncio.sleep(0.2)
+                    except Exception as e:
+                        print(f"Ошибка пересылки: {e}")
+                break
     else:
-        # Обычное сообщение (не медиагруппа)
-        users = get_all_users()
-        for user in users[1:]:
-            if not user[6]:
-                try:
-                    await message.forward(chat_id=int(user[1]))
-                    await asyncio.sleep(0.2)
-                except Exception as e:
-                    print(f"Ошибка пересылки: {e}")
+    # Обработка медиагрупп
+        if message.media_group_id:
+            media_group_id = message.media_group_id
+
+            # Отменяем предыдущий таймер для этой группы
+            if media_group_id in timers:
+                timers[media_group_id].cancel()
+
+            media_groups[media_group_id].append(message)
+
+            # Запускаем новый таймер
+            timers[media_group_id] = asyncio.create_task(
+                process_media_group(media_group_id)
+            )
+        else:
+            # Обычное сообщение (не медиагруппа)
+            users = get_all_users()
+            for user in users[1:]:
+                if not user[6]:
+                    try:
+                        await message.forward(chat_id=int(user[1]))
+                        await asyncio.sleep(0.2)
+                    except Exception as e:
+                        print(f"Ошибка пересылки: {e}")
