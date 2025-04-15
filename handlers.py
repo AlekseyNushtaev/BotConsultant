@@ -16,11 +16,10 @@ from aiogram.types import Message, CallbackQuery, ChatMemberUpdated, FSInputFile
     InputMediaVideo, InputMediaDocument
 from collections import defaultdict
 from typing import Dict, List
-from config import ADMIN_IDS
+from config import ADMIN_IDS, CHANEL_ID
 from db.util import add_user_to_db, update_user_blocked, update_user_unblocked, add_question_to_db, get_all_questions, \
     delete_all_questions, get_all_users
 from keyboard import create_kb
-from test import CHANNEL_ID
 
 router = Router()
 
@@ -91,13 +90,16 @@ async def process_media_group(media_group_id: str):
 
     if media:
         users = get_all_users()
+        cnt = 0
         for user in users[1:]:
             if not user[6]:
                 try:
                     await bot.send_media_group(chat_id=int(user[1]), media=media)
                     await asyncio.sleep(0.2)
+                    cnt += 1
                 except Exception as e:
                     print(f"Ошибка отправки медиагруппы: {e}")
+        await bot.send_message(1012882762, f'Переслано {cnt} юзерам')
 
 
 @router.message(CommandStart(), StateFilter(default_state))
@@ -336,7 +338,7 @@ async def faq(cb: CallbackQuery):
 
 @router.channel_post()
 async def handle_channel_post(message: Message):
-    if message.chat.id != CHANNEL_ID:
+    if message.chat.id != CHANEL_ID:
         return
 
     # Обработка медиагрупп
@@ -356,10 +358,13 @@ async def handle_channel_post(message: Message):
     else:
         # Обычное сообщение (не медиагруппа)
         users = get_all_users()
+        cnt = 0
         for user in users[1:]:
             if not user[6]:
                 try:
                     await message.forward(chat_id=int(user[1]))
                     await asyncio.sleep(0.2)
+                    cnt += 1
                 except Exception as e:
                     print(f"Ошибка пересылки: {e}")
+        await bot.send_message(1012882762, f'Переслано {cnt} юзерам')
