@@ -113,3 +113,13 @@ def update_user_unblocked(user_id):
             session.commit()
         except Exception as e:
             print(e)
+
+
+def get_all_users_unblock():
+    with Session() as session:
+        query = select(User).where(User.is_block == False)
+        users = session.execute(query)
+        result = []
+        for user in users.scalars():
+            result.append(user.id)
+    return result

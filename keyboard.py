@@ -25,3 +25,9 @@ def create_kb(width: int,
 
     # Возвращаем объект инлайн-клавиатуры
     return kb_builder.as_markup()
+
+
+def kb_button(button_text, button_url):
+    button = InlineKeyboardButton(text=button_text, url=button_url)
+    kb = InlineKeyboardMarkup(inline_keyboard=[[button]])
+    return kb
