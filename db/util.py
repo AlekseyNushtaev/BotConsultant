@@ -121,5 +121,5 @@ def get_all_users_unblock():
         users = session.execute(query)
         result = []
         for user in users.scalars():
-            result.append(user.id)
+            result.append(user.user_id)
     return result
