@@ -346,7 +346,7 @@ async def faq(cb: CallbackQuery):
         datetime.datetime.now()
     )
     await cb.message.answer_document(
-        FSInputFile('Как вести себя на допросе.pdf'),
+        FSInputFile('Гайд Как вести себя на допросе.pdf'),
         reply_markup=create_kb(1,
                                quest_1="Записаться на консультацию ✅"))
 
