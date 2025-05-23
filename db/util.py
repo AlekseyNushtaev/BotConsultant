@@ -1,3 +1,5 @@
+import re
+
 from sqlalchemy import select, insert, update, delete
 
 from db.models import Session, User, Question
@@ -123,3 +125,8 @@ def get_all_users_unblock():
         for user in users.scalars():
             result.append(user.user_id)
     return result
+
+
+def valid_phone(phone_number: str) -> bool:
+    pattern = r'^(\+7|8)\d{10}$'
+    return bool(re.fullmatch(pattern, phone_number))

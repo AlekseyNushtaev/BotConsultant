@@ -5,7 +5,7 @@ import openpyxl
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from bot import bot
-from spread import get_sheet
+from spread import get_sheet_users, get_sheet_questions
 
 from aiogram import Router, types, F
 from aiogram.enums import ParseMode
@@ -18,7 +18,7 @@ from collections import defaultdict
 from typing import Dict, List
 from config import ADMIN_IDS
 from db.util import add_user_to_db, update_user_blocked, update_user_unblocked, add_question_to_db, get_all_questions, \
-    delete_all_questions, get_all_users, get_all_users_unblock
+    delete_all_questions, get_all_users, get_all_users_unblock, valid_phone
 from keyboard import create_kb, kb_button
 
 router = Router()
@@ -62,18 +62,24 @@ async def scheduler(time):
         await asyncio.sleep(10)
         print(datetime.datetime.now())
         try:
-            sheet = await get_sheet()
+            sheet = await get_sheet_users()
             sheet.clear()
-            quests = get_all_questions()
             users = get_all_users()
-            sheet.append_rows(quests)
             sheet.append_rows(users)
-            empty_row = ['' for cell in range(sheet.col_count)]
-            sheet.insert_row(empty_row, len(quests) + 1)
             print(datetime.datetime.now())
         except Exception as e:
             await bot.send_message(1012882762, str(e))
         await asyncio.sleep(time)
+
+
+async def refresh_questions():
+    try:
+        sheet = await get_sheet_questions()
+        sheet.clear()
+        questions = get_all_questions()
+        sheet.append_rows(questions)
+    except Exception as e:
+        await bot.send_message(1012882762, str(e))
 
 
 async def process_media_group(media_group_id: str):
@@ -207,13 +213,21 @@ async def step_2(message: types.Message, state: FSMContext):
 @router.message(F.text, StateFilter(FSMFillForm.get_question))
 async def step_3(message: types.Message, state: FSMContext):
     await state.update_data(question=message.text)
-    await message.answer(text='Оставьте свои контактные данные (номер телефона или email)',
+    await message.answer(text='Оставьте свои контактные данные (номер телефона)',
                          reply_markup=create_kb(1, telegram="Связаться в телеграм"))
     await state.set_state(FSMFillForm.get_contact)
 
 
 @router.message(F.text, StateFilter(FSMFillForm.get_contact))
 async def step_4_1(message: types.Message, state: FSMContext):
+    if not valid_phone(message.text):
+        await message.answer(
+            text="Телефонный номер должен быть в формате +7XXXXXXXXXX или 8XXXXXXXXXX\n"
+                 "Введите корректный номер телефона",
+            parse_mode=ParseMode.HTML,
+            reply_markup=create_kb(1, telegram="Связаться в телеграм")
+        )
+        return
     contact = message.text
     dct = await state.get_data()
     add_question_to_db(message.from_user.id, dct['full_name'], dct['question'], contact, datetime.datetime.now())
@@ -232,6 +246,7 @@ async def step_4_1(message: types.Message, state: FSMContext):
                                                 new='Записаться на консультацию ✅',
                                                 faq='Хочу гайд')
                          )
+    await refresh_questions()
 
 
 @router.callback_query(F.data == 'telegram', StateFilter(FSMFillForm.get_contact))
@@ -259,6 +274,7 @@ async def step_4_2(cb: types.CallbackQuery, state: FSMContext):
                             reply_markup=create_kb(1,
                                                    new='Записаться на консультацию ✅',
                                                    faq='Хочу гайд'))
+    await refresh_questions()
 
 
 @router.my_chat_member(ChatMemberUpdatedFilter(member_status_changed=KICKED))
