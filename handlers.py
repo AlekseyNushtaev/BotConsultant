@@ -13,7 +13,7 @@ from aiogram.filters import CommandStart, StateFilter, ChatMemberUpdatedFilter, 
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State, default_state
 from aiogram.types import Message, CallbackQuery, ChatMemberUpdated, FSInputFile, InlineKeyboardButton, InputMediaPhoto, \
-    InputMediaVideo, InputMediaDocument
+    InputMediaVideo, InputMediaDocument, InlineKeyboardMarkup
 from collections import defaultdict
 from typing import Dict, List
 from config import ADMIN_IDS
@@ -171,6 +171,36 @@ async def process_start_user(message: Message):
                                                 faq_2='Гайд по Налоговым проверкам 2025',
                                                 faq_3='Гайд "Как вести себя на допросе"'
                                                 ))
+
+    caption = """🎙 *Подкасты для бизнеса*
+Мы записали серию подкастов, где простым языком и с конкретными кейсами разбираем, как бизнесу действовать в сложных ситуациях — от выездных проверок до допросов\.
+
+🎧 [Круглый стол с перевозчиками](https://youtu\.be/ORrSrI\-vvSc)
+Обсуждаем, как сейчас выживают логистические компании:
+— что говорят сами владельцы бизнеса;
+— какие проблемы с проверками, субсидиями и лизингами;
+— какие юридические шаги реально помогают\.
+Если у вас транспортная компания — обязательно к прослушиванию\!
+
+📌 *Другие наши подкасты:*
+[Каргономика: интервью для логистов](https://www\.youtube\.com/watch?v=F5rQxu3I1lY) — как логистика изменилась в 2024–2025, что делать бизнесу\.
+[Как вести себя на допросе](https://www\.youtube\.com/watch?v=iy0BYY0mE0Q) — поведение, ошибки, советы юриста\.
+[Выездные налоговые проверки:](https://www\.youtube\.com/watch?v=9_uF1SwjYfc) что важно знать — пошаговый разбор\.
+[Налоги 2025: что изменилось](https://www\.youtube\.com/watch?v=IGV8KLjKNmY) — разбор новых правил, чего ждать бизнесу\.
+
+🎁 Все подкасты — без воды, только конкретика от юристов на передовой\. Смотрите и делитесь с коллегами, пока другие в панике\."""
+
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Круглый стол с перевозчиками", url="https://youtu.be/ORrSrI-vvSc")],
+        [InlineKeyboardButton(text="Подкаст с каналом Каргономика", url="https://www.youtube.com/watch?v=F5rQxu3I1lY")],
+        [InlineKeyboardButton(text="Как вести себя на допросе", url="https://www.youtube.com/watch?v=iy0BYY0mE0Q")],
+        [InlineKeyboardButton(text="Выездные налоговые проверки",
+                              url="https://www.youtube.com/watch?v=9_uF1SwjYfc")],
+        [InlineKeyboardButton(text="Налоги 2025: что изменилось",
+                              url="https://www.youtube.com/watch?v=IGV8KLjKNmY")]
+    ])
+
+    await message.answer_photo(FSInputFile('podcast.jpg'), caption=caption, parse_mode="MarkdownV2", reply_markup=keyboard)
 
 
 @router.callback_query(F.data == 'quest_1', StateFilter(default_state))
